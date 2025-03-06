@@ -1,23 +1,49 @@
 package com.example.starwars.data
 
-import com.google.gson.annotations.SerializedName
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 
+@Serializable
 data class ResponseData(
     val count: Int,
-    val next: String,
-    val previous: String,
-    val results : ArrayList<CharacterData>,
+    val next: String?,
+    val previous: String?,
+    val results : ArrayList<CharacterDto>,
 )
 
-data class CharacterData(
+@Serializable
+data class CharacterDto(
     val name: String,
-    @SerializedName("birth_year")
+    @SerialName("birth_year")
     val birthYear: String,
     val gender: String,
     val height: String,
-    @SerializedName("eye_color")
+    @SerialName("eye_color")
     val eyeColor: String,
-    @SerializedName("hair_color")
+    @SerialName("hair_color")
     val hairColor: String,
 )
+
+@Parcelize
+data class CharacterData(
+    val name: String,
+    val birthYear: String,
+    val gender: String,
+    val height: String,
+    val eyeColor: String,
+    val hairColor: String
+) : Parcelable
+
+fun CharacterDto.toCharacterData(): CharacterData {
+    return CharacterData(
+        name = this.name,
+        birthYear = this.birthYear,
+        gender = this.gender,
+        height = this.height,
+        eyeColor = this.eyeColor,
+        hairColor = this.hairColor
+    )
+}

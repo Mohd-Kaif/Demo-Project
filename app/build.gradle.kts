@@ -2,6 +2,12 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
+    id("kotlin-parcelize")
+    kotlin("plugin.serialization") version "2.1.10"
+
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -52,13 +58,35 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
 
+//    implementation(libs.coil.kt.coil.compose)
+
     implementation(libs.coil.compose)
-    implementation(libs.androidx.runtime.livedata)
-//    implementation("io.coil-kt:coil-compose:2.3.0")
+    implementation(libs.coil.network.okhttp)
 
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+
+    implementation(libs.androidx.navigation.compose)
+
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.datastore)
+
+    implementation(libs.hilt.android)
+//    kapt(libs.androidx.hilt.compiler)
+    kapt(libs.hilt.compiler)
+//    kapt(libs.hilt.android.compiler)
+
+    // For ViewModel injection
+//    implementation(libs.androidx.hilt.lifecycle.viewmodel)
+
+
+    // Jetpack Compose integration
+    implementation(libs.androidx.hilt.navigation.compose)
+
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -68,3 +96,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+
+//kapt {
+//    correctErrorTypes = true
+//}

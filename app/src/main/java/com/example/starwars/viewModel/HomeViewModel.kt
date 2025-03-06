@@ -5,21 +5,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.starwars.data.CharacterData
 import com.example.starwars.model.CharacterRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 private const val TAG = "HomeViewModel"
 
-class HomeViewModel : ViewModel() {
-    private val characterRepository: CharacterRepository = CharacterRepository()
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val characterRepository: CharacterRepository
+) : ViewModel() {
 
     private val _homeUiState = MutableStateFlow(HomeUiState())
     val homeUiState: StateFlow<HomeUiState> = _homeUiState
-
-//    private val _allCharactersList = MutableStateFlow<List<CharacterData>>(emptyList())
-//    val allCharactersList: StateFlow<List<CharacterData>> = _allCharactersList
 
     fun getAllCharacterData() {
         _homeUiState.value = _homeUiState.value.copy(isLoading = true)
@@ -27,7 +28,7 @@ class HomeViewModel : ViewModel() {
             try {
                 val result = async { characterRepository.fetchAllCharacterData() }
                 val updatedList = homeUiState.value.itemList + result.await()
-                _homeUiState.value = HomeUiState(
+                _homeUiState.value = _homeUiState.value.copy(
                     itemList = updatedList,
                     isLoading = false,
                 )

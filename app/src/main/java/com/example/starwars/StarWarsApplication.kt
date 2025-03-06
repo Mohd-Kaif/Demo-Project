@@ -3,11 +3,7 @@ package com.example.starwars
 import android.app.Application
 import com.example.starwars.data.AppContainer
 import com.example.starwars.data.DefaultContainer
+import dagger.hilt.android.HiltAndroidApp
 
-class StarWarsApplication: Application() {
-    lateinit var container: AppContainer
-    override fun onCreate() {
-        super.onCreate()
-        container = DefaultContainer()
-    }
-}
+@HiltAndroidApp
+class StarWarsApplication: Application()
