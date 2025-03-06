@@ -1,11 +1,10 @@
 package com.example.starwars.network
 
-import com.example.starwars.data.CharacterData
 import com.example.starwars.data.ResponseData
 import retrofit2.http.GET
-import retrofit2.http.Query
+import retrofit2.http.Url
 
 interface StarWarsApi {
-    @GET("people/")
-    suspend fun getCharacters(): ResponseData
+    @GET
+    suspend fun getCharacters(@Url url: String): ResponseData
 }

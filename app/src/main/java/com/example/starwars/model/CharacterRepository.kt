@@ -4,14 +4,13 @@ import android.util.Log
 import com.example.starwars.data.CharacterData
 import com.example.starwars.network.RetrofitInstance
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
-import org.w3c.dom.Attr
 
 private const val TAG = "CharacterRepository"
 
 class CharacterRepository {
     private val api = RetrofitInstance.api
+    private var nextPageUrl: String? = "https://swapi.dev/api/people/"
 
 //    suspend fun fetchCharacterData(page: Int): CharacterData {
 //        return withContext(Dispatchers.IO) {
@@ -22,11 +21,14 @@ class CharacterRepository {
 
     suspend fun fetchAllCharacterData(): List<CharacterData> {
         val result : MutableList<CharacterData> = mutableListOf()
+        if (nextPageUrl == null) return result
+
         try {
             val response = withContext(Dispatchers.IO) {
-                api.getCharacters()
+                api.getCharacters(nextPageUrl!!)
             }
             result.addAll(response.results)
+            nextPageUrl = response.next
         } catch (e: Exception) {
             Log.e(TAG, "Error fetching data")
         }
