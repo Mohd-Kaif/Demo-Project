@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
 <!--    For coil to display images from the internet    -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:name=".StarWarsApplication"
@@ -23,7 +24,6 @@
             android:theme="@style/Theme.StarWars">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

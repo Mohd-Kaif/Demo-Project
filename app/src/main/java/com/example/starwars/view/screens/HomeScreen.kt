@@ -51,7 +51,6 @@ import coil3.compose.AsyncImage
 import com.example.starwars.R
 import com.example.starwars.StarWarsTopAppBar
 import com.example.starwars.data.CharacterData
-import com.example.starwars.view.navigation.NavigationDestination
 import com.example.starwars.viewModel.HomeViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -82,7 +81,8 @@ fun HomeScreen(
         topBar = {
             StarWarsTopAppBar(
                 title = stringResource(R.string.app_name),
-                canNavigateBack = false
+                canNavigateBack = false,
+                canShareDetails = false
             )
                  },
         floatingActionButton = {

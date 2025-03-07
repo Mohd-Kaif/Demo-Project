@@ -2,7 +2,6 @@ package com.example.starwars.model
 
 import android.util.Log
 import com.example.starwars.data.CharacterData
-import com.example.starwars.data.toCharacterData
 import com.example.starwars.network.StarWarsApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,7 +23,7 @@ class CharacterRepository @Inject constructor(
             val response = withContext(Dispatchers.IO) {
                 api.getCharacters(nextPageUrl!!)
             }
-            result.addAll(response.results.map { it.toCharacterData() })
+            result.addAll(response.results)
             nextPageUrl = response.next
         } catch (e: Exception) {
             Log.e(TAG, "Error fetching data")
