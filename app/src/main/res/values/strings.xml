@@ -8,4 +8,5 @@
     <string name="hair_color">Hair Color</string>
     <string name="birth_year">Birth Year</string>
     <string name="gender">Gender</string>
+    <string name="go_to_top">Go to top</string>
 </resources>

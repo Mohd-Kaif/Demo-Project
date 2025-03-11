@@ -1,10 +1,10 @@
 package com.example.starwars.di
 
-import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
-import androidx.compose.ui.platform.LocalContext
+import com.example.starwars.BASE_URL
+import com.example.starwars.cacheSize
 import com.example.starwars.model.CharacterRepository
 import com.example.starwars.network.StarWarsApi
 import dagger.Module
@@ -17,9 +17,6 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
-
-const val cacheSize = (10 * 1024 * 1024).toLong()
-const val BASE_URL = "https://swapi.dev/api/people/"
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -43,7 +40,6 @@ object AppModule {
         return CharacterRepository(apiService)
     }
 }
-
 
 private fun createOkHttpClient(context: Context): OkHttpClient {
     val myCache = Cache(context.cacheDir, cacheSize)

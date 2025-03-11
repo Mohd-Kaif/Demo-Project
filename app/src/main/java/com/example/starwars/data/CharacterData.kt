@@ -2,8 +2,6 @@ package com.example.starwars.data
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 
 @Parcelize
 data class ResponseData(
@@ -17,13 +15,15 @@ data class ResponseData(
 data class CharacterData(
     val name: String,
 //    @SerialName("birth_year")
+    val height: String,
+    val mass: String,
+    val hair_color: String,
+    val skin_color: String,
+    val eye_color: String,
     val birth_year: String,
     val gender: String,
-    val height: String,
 //    @SerialName("eye_color")
-    val eye_color: String,
 //    @SerialName("hair_color")
-    val hair_color: String,
 ) : Parcelable
 
 //@Parcelize

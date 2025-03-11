@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,6 +18,8 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -47,21 +51,19 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.viewModelFactory
 import coil3.compose.AsyncImage
+import com.example.starwars.BUFFER_SIZE
 
 import com.example.starwars.R
 import com.example.starwars.StarWarsTopAppBar
 import com.example.starwars.data.CharacterData
+import com.example.starwars.data.DataProvider
+import com.example.starwars.imageUrl
 import com.example.starwars.viewModel.HomeViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
 const val TAG = "HomeScreen"
-
-//object HomeDestination : NavigationDestination {
-//    override val route = "home"
-//    override val title = R.string.home_title
-//}
 
 @Composable
 fun HomeScreen(
@@ -93,7 +95,7 @@ fun HomeScreen(
             }) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowUp,
-                    contentDescription = "Go to top"
+                    contentDescription = stringResource(R.string.go_to_top)
                 )
             }
         }
@@ -118,7 +120,7 @@ fun HomeBody(
     onItemClick: (CharacterData) -> Unit,
     modifier: Modifier = Modifier,
     error: String? = null,
-    buffer: Int = 2,
+    buffer: Int = BUFFER_SIZE,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     val shouldLoadMore = remember {
@@ -151,12 +153,11 @@ fun HomeBody(
         itemsIndexed(itemList, key = { _, item -> item.name }) { index, item ->
             CharacterCard(
                 item = item,
-                modifier = modifier.padding(4.dp).fillMaxWidth().clickable { onItemClick(item) }
+                modifier = modifier
+                    .padding(4.dp)
+                    .fillMaxWidth()
+                    .clickable { onItemClick(item) }
             )
-
-//            if (index == itemList.lastIndex && !isLoading) {
-//                loadMoreItems()
-//            }
         }
 
         if (isLoading) {
@@ -195,7 +196,7 @@ fun CharacterCard(
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = Color.LightGray),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -203,7 +204,7 @@ fun CharacterCard(
             modifier = modifier.padding(8.dp)
         ) {
             AsyncImage(
-                model = "https://media.istockphoto.com/id/636208094/photo/tropical-jungle.jpg?s=1024x1024&w=is&k=20&c=Zyc6mQ-VrbJIVjPOhrdzKlr6CpUdpcqT__bPJHJemXI=" ,
+                model = imageUrl ,
                 contentDescription = "Character Image",
                 modifier = Modifier
                     .size(100.dp)
@@ -224,7 +225,26 @@ fun CharacterCard(
 
 @Preview(showBackground = true)
 @Composable
+fun HomeScreenPreview() {
+    HomeScreen(navigateToCharacterDetails = {})
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeBodyPreview() {
+    HomeBody(
+        itemList = DataProvider.characterList(),
+        loadMoreItems = {},
+        listState = LazyListState(),
+        isLoading = false,
+        onItemClick = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
 fun CharacterCardPreview() {
     CharacterCard(
-        CharacterData("Luke Skywalker", "19 BBY", "Male", "172", "Blue", "Blond"))
+        item = DataProvider.character()
+    )
 }

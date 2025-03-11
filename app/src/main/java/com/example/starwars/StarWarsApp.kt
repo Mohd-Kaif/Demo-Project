@@ -53,7 +53,7 @@ fun StarWarsTopAppBar(
             if (canShareDetails) {
                 IconButton(onClick = shareDetails) {
                     Icon(
-                        imageVector = Icons.Default.Share,
+                        imageVector = Icons.Filled.Share,
                         contentDescription = "Share"
                     )
                 }
