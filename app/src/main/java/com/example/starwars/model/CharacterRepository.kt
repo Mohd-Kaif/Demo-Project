@@ -3,8 +3,11 @@ package com.example.starwars.model
 import android.util.Log
 import com.example.starwars.data.CharacterData
 import com.example.starwars.network.StarWarsApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.example.starwars.viewModel.Result
+import com.example.starwars.viewModel.asResult
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 private const val TAG = "CharacterRepository"
@@ -15,19 +18,19 @@ class CharacterRepository @Inject constructor(
 //    private val api = RetrofitInstance.api
     private var nextPageUrl: String? = "https://swapi.dev/api/people/"
 
-    suspend fun fetchAllCharacterData(): List<CharacterData> {
-        val result : MutableList<CharacterData> = mutableListOf()
-        if (nextPageUrl == null) return result
-
-        try {
-            val response = withContext(Dispatchers.IO) {
-                api.getCharacters(nextPageUrl!!)
+    suspend fun fetchAllCharacterData(): Flow<Result<CharacterData>> {
+        return flow {
+            if (nextPageUrl == null) {
+                throw Exception()
             }
-            result.addAll(response.results)
+            val response = api.getCharacters(nextPageUrl!!)
+            response.results.forEach {
+                emit(it)
+//                delay(500)
+            }
             nextPageUrl = response.next
-        } catch (e: Exception) {
-            Log.e(TAG, "Error fetching data")
-        }
-        return result
+//            Log.d(TAG, "Emitter Thread: ${Thread.currentThread()}")
+        }.asResult()
     }
 }
+

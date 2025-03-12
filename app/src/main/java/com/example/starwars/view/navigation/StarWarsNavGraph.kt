@@ -27,27 +27,38 @@ fun StarWarsNavHost(
             HomeScreen(
                 navigateToCharacterDetails = { character ->
                     navController.currentBackStackEntry?.savedStateHandle?.set("character", character)
-                    navController.navigate("characterDetails") },
+                    navController.navigate("characterDetails")
+                }
             )
         }
 
         composable(route = "characterDetails") {
             val context = LocalContext.current
             val character = navController.previousBackStackEntry?.savedStateHandle?.get<CharacterData>("character")
-            CharacterDetailScreen(
-                character = character,
-                navigateBack = { navController.navigateUp() },
-                shareDetails = { shareDetails(context, character) }
-            )
+            if (character != null) {
+                CharacterDetailScreen(
+                    character = character,
+                    navigateBack = { navController.navigateUp() },
+                    shareDetails = { shareDetails(context, character) }
+                )
+            }
         }
     }
 }
 
 private fun shareDetails(context: Context, characterData: CharacterData?) {
     if (characterData == null) return
-    val shareText = "Name: ${characterData.name}, Height: ${characterData.height}cm, Gender: ${characterData.gender}, Birth Year: ${characterData.birth_year}, Eye Color: ${characterData.eye_color}, Hair Color: ${characterData.hair_color}"
+    val shareText =
+        """
+            |Name: ${characterData.name}
+            |Height: ${characterData.height}cm
+            |Gender: ${characterData.gender}
+            |Birth Year: ${characterData.birth_year}
+            |Eye Color: ${characterData.eye_color}
+            |Hair Color: ${characterData.hair_color}
+        """.trimMargin()
     val shareIntent = Intent(Intent.ACTION_SEND).apply {
-        type = "text/plain"
+        type = "text/*"
         putExtra(Intent.EXTRA_TEXT, shareText)
     }
 

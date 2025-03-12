@@ -1,17 +1,24 @@
 package com.example.starwars
 
+import android.media.Image
+import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -33,31 +40,54 @@ fun StarWarsTopAppBar(
     shareDetails: () -> Unit = {}
 ) {
     CenterAlignedTopAppBar(
-        title = { Text(title) },
+        title = {
+            Text(text = title)
+        },
         modifier = modifier,
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             titleContentColor = MaterialTheme.colorScheme.onPrimary
         ),
         navigationIcon = {
-            if (canNavigateBack) {
-                IconButton(onClick = navigateUp) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back_button)
-                    )
-                }
-            }
+            TopAppBarButton(
+                enabled = canNavigateBack,
+                onClick = navigateUp,
+                imageVec = Icons.AutoMirrored.Filled.ArrowBack,
+                iconDescription = R.string.back_button
+            )
         },
         actions = {
-            if (canShareDetails) {
-                IconButton(onClick = shareDetails) {
-                    Icon(
-                        imageVector = Icons.Filled.Share,
-                        contentDescription = "Share"
-                    )
-                }
-            }
+            TopAppBarButton(
+                enabled = canShareDetails,
+                onClick = shareDetails,
+                imageVec = Icons.Filled.Share,
+                iconDescription = R.string.share
+            )
         }
     )
+}
+
+@Composable
+fun TopAppBarButton(
+    enabled: Boolean,
+    onClick: () -> Unit,
+    imageVec: ImageVector,
+    @StringRes iconDescription: Int,
+) {
+    if (enabled) {
+        IconButton(
+            onClick = onClick,
+            colors = IconButtonColors(
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onTertiary,
+                disabledContentColor = Color.DarkGray,
+                disabledContainerColor = Color.Transparent
+            )
+        ) {
+            Icon(
+                imageVector = imageVec,
+                contentDescription = stringResource(iconDescription),
+            )
+        }
+    }
 }

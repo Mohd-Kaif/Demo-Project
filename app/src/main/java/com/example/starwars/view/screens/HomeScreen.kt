@@ -1,36 +1,31 @@
 package com.example.starwars.view.screens
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -49,11 +44,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.viewModelFactory
 import coil3.compose.AsyncImage
 import com.example.starwars.BUFFER_SIZE
-
 import com.example.starwars.R
+import com.example.starwars.viewModel.Result
 import com.example.starwars.StarWarsTopAppBar
 import com.example.starwars.data.CharacterData
 import com.example.starwars.data.DataProvider
@@ -72,6 +66,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
     // State to track the scroll position
     val listState = rememberLazyListState()
@@ -86,7 +81,7 @@ fun HomeScreen(
                 canNavigateBack = false,
                 canShareDetails = false
             )
-                 },
+        },
         floatingActionButton = {
             FloatingActionButton(onClick = {
                 coroutineScope.launch {
@@ -100,14 +95,25 @@ fun HomeScreen(
             }
         }
     ) { innerPadding ->
-        HomeBody(
-            itemList = homeUiState.itemList,
-            loadMoreItems = { viewModel.getAllCharacterData() },
-            listState = listState,
-            isLoading = homeUiState.isLoading,
-            onItemClick = navigateToCharacterDetails,
-            contentPadding = innerPadding
-        )
+        when (homeUiState) {
+            is Result.Loading -> { LoadingScreen(modifier = Modifier, contentPadding = innerPadding, isLoading = isLoading, loadMoreItems = {viewModel.getAllCharacterData()}) }
+            is Result.Success -> {
+                HomeBody(
+                    itemList = (homeUiState as Result.Success<List<CharacterData>>).data,
+                    loadMoreItems = { viewModel.getAllCharacterData() },
+                    listState = listState,
+                    isLoading = isLoading,
+                    onItemClick = navigateToCharacterDetails,
+                    contentPadding = innerPadding
+                )
+            }
+            is Result.Error -> {
+                ErrorScreen(
+                    retryAction = { viewModel.getAllCharacterData() },
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
     }
 }
 
@@ -119,7 +125,6 @@ fun HomeBody(
     isLoading: Boolean,
     onItemClick: (CharacterData) -> Unit,
     modifier: Modifier = Modifier,
-    error: String? = null,
     buffer: Int = BUFFER_SIZE,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
@@ -130,6 +135,7 @@ fun HomeBody(
             // Get the index of the last visible item
             val lastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
             // Check if we have scrolled near the end of the list and more items should be loaded
+            Log.d(TAG, "last: ${lastVisibleItemIndex}, total: $totalItemsCount")
             lastVisibleItemIndex >= (totalItemsCount - buffer) && !isLoading
         }
     }
@@ -159,32 +165,6 @@ fun HomeBody(
                     .clickable { onItemClick(item) }
             )
         }
-
-        if (isLoading) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-        }
-
-        if (error != null) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = error, color = MaterialTheme.colorScheme.error)
-                }
-            }
-        }
     }
 }
 
@@ -196,7 +176,7 @@ fun CharacterCard(
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -214,11 +194,55 @@ fun CharacterCard(
             Text(
                 text = item.name,
                 fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.secondary,
                 textAlign = TextAlign.Left,
                 modifier = modifier
                     .padding(start = 16.dp)
                     .weight(2.0f)
             )
+        }
+    }
+}
+
+@Composable
+fun LoadingScreen(
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    isLoading: Boolean,
+    loadMoreItems: () -> Unit
+) {
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(contentPadding)
+            .padding(16.dp),
+    ) {
+        item {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+                if (!isLoading) {
+                    loadMoreItems()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = stringResource(R.string.loading_failed), modifier = Modifier.padding(16.dp))
+        Button(onClick = retryAction) {
+            Text(text = stringResource(R.string.retry))
         }
     }
 }

@@ -14,7 +14,6 @@ data class ResponseData(
 @Parcelize
 data class CharacterData(
     val name: String,
-//    @SerialName("birth_year")
     val height: String,
     val mass: String,
     val hair_color: String,
@@ -22,6 +21,7 @@ data class CharacterData(
     val eye_color: String,
     val birth_year: String,
     val gender: String,
+//    @SerialName("birth_year")
 //    @SerialName("eye_color")
 //    @SerialName("hair_color")
 ) : Parcelable

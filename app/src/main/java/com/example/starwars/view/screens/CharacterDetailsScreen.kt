@@ -29,7 +29,7 @@ import com.example.starwars.imageUrl
 
 @Composable
 fun CharacterDetailScreen(
-    character: CharacterData?,
+    character: CharacterData,
     navigateBack: () -> Unit,
     shareDetails: () -> Unit,
     modifier: Modifier = Modifier
@@ -38,7 +38,7 @@ fun CharacterDetailScreen(
         modifier = modifier,
         topBar = {
             StarWarsTopAppBar(
-                title = character?.name ?: "Character Details",
+                title = character.name,
                 canNavigateBack = true,
                 canShareDetails = true,
                 navigateUp = navigateBack,
@@ -46,22 +46,10 @@ fun CharacterDetailScreen(
                 )
         }
     ) { innerPadding ->
-        if (character != null) {
-            CharacterDetailBody(
-                characterData = character,
-                contentPadding = innerPadding,
-            )
-        }
-//        else {
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .padding(innerPadding),
-//                contentAlignment = Alignment.Center
-//            ) {
-//                Text("Character details not available", style = MaterialTheme.typography.bodyLarge)
-//            }
-//        }
+        CharacterDetailBody(
+            characterData = character,
+            contentPadding = innerPadding,
+        )
     }
 }
 
