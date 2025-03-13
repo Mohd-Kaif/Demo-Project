@@ -15,23 +15,11 @@ Star Wars App is a Jetpack Compose-based Android app that uses the **SWAPI API**
 
 ## 📸 Screenshots
 
-<div style="display: flex; justify-content: space-between;">
-
-  <div style="text-align: center; width: 48%; margin-right: 4%;  margin-left: 4%">
-    <img src="https://raw.githubusercontent.com/Mohd-Kaif/Demo-Project/main/docs/images/home_screen.png" width="100%" />
-    <p><strong>Home Screen</strong></p>
-  </div>
-
-  <div style="text-align: center; width: 48%; margin-right: 4%">
-    <img src="https://raw.githubusercontent.com/Mohd-Kaif/Demo-Project/main/docs/images/character_details_screen.png" width="100%" />
-    <p><strong>Character Details</strong></p>
-  </div>
-
-  <div style="text-align: center; width: 48%; margin-right: 4%">
-    <img src="https://raw.githubusercontent.com/Mohd-Kaif/Demo-Project/main/docs/images/share_screen.png" width="100%" />
-    <p><strong>Character Details</strong></p>
-  </div>
-</div>
+<p align="center">
+    <img src="https://raw.githubusercontent.com/Mohd-Kaif/Demo-Project/main/docs/images/home_screen.png" width="30%" />
+    <img src="https://raw.githubusercontent.com/Mohd-Kaif/Demo-Project/main/docs/images/character_details_screen.png" width="30%" />
+    <img src="https://raw.githubusercontent.com/Mohd-Kaif/Demo-Project/main/docs/images/share_screen.png" width="30%" />
+</p>
 
 ---
 
