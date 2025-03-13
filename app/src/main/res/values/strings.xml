@@ -12,4 +12,5 @@
     <string name="loading_failed">Failed to load\n</string>
     <string name="retry">Retry</string>
     <string name="share">Share</string>
+    <string name="character_image">Character Image</string>
 </resources>
