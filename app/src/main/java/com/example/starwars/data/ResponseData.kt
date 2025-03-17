@@ -8,5 +8,5 @@ data class ResponseData(
     val count: Int,
     val next: String?,
     val previous: String?,
-    val results : ArrayList<CharacterData>,
+    val results : List<CharacterData>,
 ) : Parcelable

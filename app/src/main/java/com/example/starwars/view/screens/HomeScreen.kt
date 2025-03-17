@@ -1,6 +1,7 @@
 package com.example.starwars.view.screens
 
 import android.util.Log
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFrom
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -53,9 +55,13 @@ import com.example.starwars.data.CharacterData
 import com.example.starwars.data.DataProvider
 import com.example.starwars.imageUrl
 import com.example.starwars.viewModel.HomeViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 const val TAG = "HomeScreen"
 
@@ -96,7 +102,15 @@ fun HomeScreen(
         }
     ) { innerPadding ->
         when (homeUiState) {
-            is Result.Loading -> { LoadingScreen(modifier = Modifier, contentPadding = innerPadding, isLoading = isLoading, loadMoreItems = {viewModel.getAllCharacterData()}) }
+            is Result.Loading -> {
+                LoadingScreen(
+                    isLoading = isLoading,
+                    loadMoreItems = {viewModel.getAllCharacterData()},
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                )
+            }
             is Result.Success -> {
                 HomeBody(
                     itemList = (homeUiState as Result.Success<List<CharacterData>>).data,
@@ -110,7 +124,10 @@ fun HomeScreen(
             is Result.Error -> {
                 ErrorScreen(
                     retryAction = { viewModel.getAllCharacterData() },
-                    modifier = Modifier.fillMaxSize()
+                    message = (homeUiState as Result.Error).exception?.message,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
                 )
             }
         }
@@ -165,6 +182,19 @@ fun HomeBody(
                     .clickable { onItemClick(item) }
             )
         }
+
+        if (isLoading) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+        }
     }
 }
 
@@ -176,7 +206,7 @@ fun CharacterCard(
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -185,7 +215,7 @@ fun CharacterCard(
         ) {
             AsyncImage(
                 model = imageUrl ,
-                contentDescription = "Character Image",
+                contentDescription = stringResource(R.string.character_image),
                 modifier = Modifier
                     .size(100.dp)
                     .weight(1f),
@@ -206,41 +236,30 @@ fun CharacterCard(
 
 @Composable
 fun LoadingScreen(
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
     isLoading: Boolean,
-    loadMoreItems: () -> Unit
+    loadMoreItems: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(contentPadding)
-            .padding(16.dp),
-    ) {
-        item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-                if (!isLoading) {
-                    loadMoreItems()
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = stringResource(R.string.loading_failed), modifier = Modifier.padding(16.dp))
+        CircularProgressIndicator()
+        if (!isLoading) {
+            loadMoreItems()
+        }
+    }
+}
+
+@Composable
+fun ErrorScreen(retryAction: () -> Unit, message: String?, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = message?: stringResource(R.string.loading_failed), modifier = Modifier.padding(16.dp))
         Button(onClick = retryAction) {
             Text(text = stringResource(R.string.retry))
         }

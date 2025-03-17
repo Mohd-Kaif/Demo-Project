@@ -2,6 +2,7 @@ package com.example.starwars.di
 
 import android.content.Context
 import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.NetworkInfo
 import com.example.starwars.BASE_URL
 import com.example.starwars.cacheSize
@@ -57,11 +58,16 @@ private fun createOkHttpClient(context: Context): OkHttpClient {
 }
 
 
-private fun hasNetwork(context: Context): Boolean? {
-    var isConnected: Boolean? = false // Initial Value
+fun hasNetwork(context: Context): Boolean? {
+//    var isConnected: Boolean? = false // Initial Value
+//    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+//    val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
+//    if (activeNetwork != null && activeNetwork.isConnected)
+//        isConnected = true
+//    return isConnected
     val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
-    if (activeNetwork != null && activeNetwork.isConnected)
-        isConnected = true
-    return isConnected
+    val network = connectivityManager.activeNetwork
+    val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+
+    return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
 }
