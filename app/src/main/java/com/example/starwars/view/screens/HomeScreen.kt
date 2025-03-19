@@ -1,7 +1,5 @@
 package com.example.starwars.view.screens
 
-import android.util.Log
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFrom
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -39,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -49,19 +47,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.example.starwars.BUFFER_SIZE
 import com.example.starwars.R
-import com.example.starwars.viewModel.Result
 import com.example.starwars.StarWarsTopAppBar
 import com.example.starwars.data.CharacterData
 import com.example.starwars.data.DataProvider
 import com.example.starwars.imageUrl
 import com.example.starwars.viewModel.HomeViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.example.starwars.viewModel.Result
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 const val TAG = "HomeScreen"
 
@@ -147,20 +141,16 @@ fun HomeBody(
 ) {
     val shouldLoadMore = remember {
         derivedStateOf {
-            // Get the total number of items in the list
             val totalItemsCount = listState.layoutInfo.totalItemsCount
-            // Get the index of the last visible item
             val lastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            // Check if we have scrolled near the end of the list and more items should be loaded
-            Log.d(TAG, "last: ${lastVisibleItemIndex}, total: $totalItemsCount")
             lastVisibleItemIndex >= (totalItemsCount - buffer) && !isLoading
         }
     }
 
-    LaunchedEffect(listState) { // When listState changes (due to scrolling), this will execute
+    LaunchedEffect(listState) {
         snapshotFlow { shouldLoadMore.value }
             .distinctUntilChanged()
-            .filter { it } // Ensure that we load more items only when needed
+            .filter { it }
             .collect{
                 loadMoreItems()
             }
@@ -170,14 +160,14 @@ fun HomeBody(
         modifier = modifier
             .fillMaxSize()
             .padding(contentPadding)
-            .padding(16.dp),
+            .padding(dimensionResource(R.dimen.padding_medium)),
         state = listState
     ) {
         itemsIndexed(itemList, key = { _, item -> item.name }) { index, item ->
             CharacterCard(
                 item = item,
                 modifier = modifier
-                    .padding(4.dp)
+                    .padding(dimensionResource(R.dimen.padding_small))
                     .fillMaxWidth()
                     .clickable { onItemClick(item) }
             )
@@ -188,7 +178,7 @@ fun HomeBody(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .padding(dimensionResource(R.dimen.padding_medium)),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
@@ -211,7 +201,7 @@ fun CharacterCard(
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier.padding(8.dp)
+            modifier = modifier.padding(dimensionResource(R.dimen.padding_small))
         ) {
             AsyncImage(
                 model = imageUrl ,
@@ -227,7 +217,7 @@ fun CharacterCard(
                 color = MaterialTheme.colorScheme.secondary,
                 textAlign = TextAlign.Left,
                 modifier = modifier
-                    .padding(start = 16.dp)
+                    .padding(start = dimensionResource(R.dimen.padding_medium))
                     .weight(2.0f)
             )
         }
@@ -259,17 +249,14 @@ fun ErrorScreen(retryAction: () -> Unit, message: String?, modifier: Modifier = 
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = message?: stringResource(R.string.loading_failed), modifier = Modifier.padding(16.dp))
+        Text(
+            text = message?: stringResource(R.string.loading_failed),
+            modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))
+        )
         Button(onClick = retryAction) {
             Text(text = stringResource(R.string.retry))
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    HomeScreen(navigateToCharacterDetails = {})
 }
 
 @Preview(showBackground = true)

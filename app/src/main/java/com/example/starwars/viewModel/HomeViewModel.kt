@@ -1,38 +1,20 @@
 package com.example.starwars.viewModel
 
-import android.accounts.NetworkErrorException
-import android.content.Context
 import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.currentCompositionErrors
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.starwars.data.CharacterData
-import com.example.starwars.di.hasNetwork
 import com.example.starwars.model.CharacterRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import okio.IOException
-import org.json.JSONException
-import retrofit2.HttpException
-import java.net.SocketTimeoutException
 import javax.inject.Inject
 
 private const val TAG = "HomeViewModel"
@@ -48,11 +30,8 @@ class HomeViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow<Boolean>(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    private var hasMoreData = true
-
     fun getAllCharacterData() {
-        if (!hasMoreData) return
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             characterRepository.fetchAllCharacterData()
                 .onStart { _isLoading.value = true }
                 .onCompletion { _isLoading.value = false }

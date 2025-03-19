@@ -48,7 +48,7 @@ private fun createOkHttpClient(context: Context): OkHttpClient {
         .cache(myCache)
         .addInterceptor { chain ->
             var request = chain.request()
-            request = if (hasNetwork(context)!!)
+            request = if (hasNetwork(context))
                 request.newBuilder().header("Cache-Control", "public, max-age=" + 5).build()
             else
                 request.newBuilder().header("Cache-Control", "public, only-if-cached, max-stale=" + 60 * 60 * 24 * 7).build()
@@ -57,14 +57,7 @@ private fun createOkHttpClient(context: Context): OkHttpClient {
         .build()
 }
 
-
-fun hasNetwork(context: Context): Boolean? {
-//    var isConnected: Boolean? = false // Initial Value
-//    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-//    val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
-//    if (activeNetwork != null && activeNetwork.isConnected)
-//        isConnected = true
-//    return isConnected
+fun hasNetwork(context: Context): Boolean {
     val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     val network = connectivityManager.activeNetwork
     val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false

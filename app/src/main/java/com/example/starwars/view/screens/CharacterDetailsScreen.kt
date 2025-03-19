@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -60,18 +61,18 @@ fun CharacterDetailBody(
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(24.dp),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_large)),
         modifier = modifier
-            .padding(16.dp)
+            .padding(dimensionResource(R.dimen.padding_medium))
             .padding(contentPadding)
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
         AsyncImage(
             model = imageUrl,
-            contentDescription = "Character Image",
+            contentDescription = stringResource(R.string.character_image),
             modifier = modifier.fillMaxWidth(),
-            contentScale = ContentScale.Fit
+            contentScale = ContentScale.Crop
         )
         CharacterDetails(characterData)
     }
@@ -117,7 +118,7 @@ fun CharacterDetails(
 private fun ItemDetailsRow(
     @StringRes labelResID: Int, itemDetail: String, modifier: Modifier = Modifier
 ) {
-    Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))) {
         Text(stringResource(labelResID) + ": ", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         Text(text = itemDetail, fontSize = 16.sp)
     }

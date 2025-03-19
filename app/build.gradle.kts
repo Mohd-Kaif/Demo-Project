@@ -22,7 +22,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.example.starwars.CustomTestRunner"
     }
+
 
     buildTypes {
         release {
@@ -58,8 +60,6 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
 
-//    implementation(libs.coil.kt.coil.compose)
-
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
 
@@ -73,13 +73,7 @@ dependencies {
     implementation(libs.androidx.datastore)
 
     implementation(libs.hilt.android)
-//    kapt(libs.androidx.hilt.compiler)
     kapt(libs.hilt.compiler)
-//    kapt(libs.hilt.android.compiler)
-
-    // For ViewModel injection
-//    implementation(libs.androidx.hilt.lifecycle.viewmodel)
-
 
     // Jetpack Compose integration
     implementation(libs.androidx.hilt.navigation.compose)
@@ -87,16 +81,21 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
 
-
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.androidx.navigation.testing)
+
+    androidTestImplementation(libs.hilt.android.testing)
+    kaptAndroidTest(libs.hilt.android.compiler)
+
+    androidTestImplementation(platform(libs.androidx.compose.bom.v20230501))
+    androidTestImplementation(libs.ui.test.junit4)
+    androidTestImplementation(libs.androidx.navigation.testing.v260)
+    androidTestImplementation(libs.androidx.espresso.intents)
+    androidTestImplementation(libs.androidx.junit.v115)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
-
-//kapt {
-//    correctErrorTypes = true
-//}

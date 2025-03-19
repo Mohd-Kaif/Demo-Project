@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Star Wars</string>
-    <string name="home_title">Star Wars</string>
     <string name="back_button">Back</string>
     <string name="name">Name</string>
     <string name="height">Height</string>
@@ -13,4 +12,7 @@
     <string name="retry">Retry</string>
     <string name="share">Share</string>
     <string name="character_image">Character Image</string>
+    <string name="home">home</string>
+    <string name="character_details">characterDetails</string>
+    <string name="character">character</string>
 </resources>
