@@ -1,5 +1,6 @@
 package com.example.starwars.model
 
+import android.util.Log
 import com.example.starwars.BASE_URL
 import com.example.starwars.data.CharacterData
 import com.example.starwars.network.StarWarsApi
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.flowOn
 import okio.IOException
 import org.json.JSONException
 import retrofit2.HttpException
+import retrofit2.http.HTTP
 import java.net.SocketTimeoutException
 import javax.inject.Inject
 
@@ -23,23 +25,35 @@ class CharacterRepository @Inject constructor(
 ) {
     private var nextPageUrl: String? = BASE_URL
 
-    fun fetchAllCharacterData(): Flow<Result<List<CharacterData>>> {
+    fun fetchAllCharacterData(refresh: Boolean): Flow<Result<List<CharacterData>>> {
+        if (refresh) {
+            nextPageUrl = BASE_URL
+        }
         return flow {
             if (nextPageUrl == null) return@flow
-            val response = api.getCharacters(nextPageUrl!!)
+            val response = api.getCharacters(nextPageUrl!!) ?: throw Exception("response not found")
+            if (response.results == null) {
+                throw Exception("data not found in response")
+            }
+            response.results.forEach {
+                Log.d(TAG, "$it")
+            }
             emit(response.results)
             nextPageUrl = response.next
         }.asResult()
-            .flowOn(Dispatchers.IO)
             .catch { e->
                 val errMessage = when(e) {
-                    is SocketTimeoutException -> "Network Timeout. Please try again."
+                    is SocketTimeoutException -> "Request Timed Out. Please try again."
                     is IOException -> "No Internet Connection"
-                    is JSONException -> "Error parsing response."
-                    is HttpException -> "No Internet Connection."
-                    else -> "Please try again."
+                    is JSONException -> "Something went wrong"
+                    is HttpException -> when(val code = e.code()) {
+                        504 -> "No Internet Connection"
+                        else -> "HTTP $code error Something went wrong"
+                    }
+                    else -> "Oops!! Something went wrong"
                 }
                 emit(Result.Error(Exception(errMessage)))
             }
+            .flowOn(Dispatchers.IO)
     }
 }

@@ -1,5 +1,6 @@
 package com.example.starwars.view.screens
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,11 +21,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -61,7 +64,7 @@ const val TAG = "HomeScreen"
 
 @Composable
 fun HomeScreen(
-    navigateToCharacterDetails: (CharacterData) -> Unit,
+    navigateToCharacterDetails: (Int) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -99,7 +102,7 @@ fun HomeScreen(
             is Result.Loading -> {
                 LoadingScreen(
                     isLoading = isLoading,
-                    loadMoreItems = {viewModel.getAllCharacterData()},
+                    loadMoreItems = { viewModel.getAllCharacterData(false) },
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
@@ -108,7 +111,8 @@ fun HomeScreen(
             is Result.Success -> {
                 HomeBody(
                     itemList = (homeUiState as Result.Success<List<CharacterData>>).data,
-                    loadMoreItems = { viewModel.getAllCharacterData() },
+                    loadMoreItems = { viewModel.getAllCharacterData(false) },
+                    refreshData = {viewModel.getAllCharacterData(true)},
                     listState = listState,
                     isLoading = isLoading,
                     onItemClick = navigateToCharacterDetails,
@@ -117,24 +121,25 @@ fun HomeScreen(
             }
             is Result.Error -> {
                 ErrorScreen(
-                    retryAction = { viewModel.getAllCharacterData() },
+                    retryAction = { viewModel.getAllCharacterData(false) },
                     message = (homeUiState as Result.Error).exception?.message,
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(innerPadding)
                 )
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeBody(
     itemList: List<CharacterData>,
     loadMoreItems: () -> Unit,
+    refreshData: () -> Unit,
     listState: LazyListState,
     isLoading: Boolean,
-    onItemClick: (CharacterData) -> Unit,
+    onItemClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     buffer: Int = BUFFER_SIZE,
     contentPadding: PaddingValues = PaddingValues(0.dp)
@@ -156,32 +161,37 @@ fun HomeBody(
             }
     }
 
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(contentPadding)
-            .padding(dimensionResource(R.dimen.padding_medium)),
-        state = listState
+    PullToRefreshBox(
+        isRefreshing = isLoading,
+        onRefresh = refreshData,
     ) {
-        itemsIndexed(itemList, key = { _, item -> item.name }) { index, item ->
-            CharacterCard(
-                item = item,
-                modifier = modifier
-                    .padding(dimensionResource(R.dimen.padding_small))
-                    .fillMaxWidth()
-                    .clickable { onItemClick(item) }
-            )
-        }
-
-        if (isLoading) {
-            item {
-                Box(
-                    modifier = Modifier
+        LazyColumn(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(contentPadding)
+                .padding(dimensionResource(R.dimen.padding_medium)),
+            state = listState
+        ) {
+            itemsIndexed(itemList, key = { _, item -> item.name }) { index, item ->
+                CharacterCard(
+                    item = item,
+                    modifier = modifier
+                        .padding(dimensionResource(R.dimen.padding_small))
                         .fillMaxWidth()
-                        .padding(dimensionResource(R.dimen.padding_medium)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+                        .clickable { onItemClick(index) }
+                )
+            }
+
+            if (isLoading) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(dimensionResource(R.dimen.padding_medium)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
             }
         }
@@ -251,7 +261,9 @@ fun ErrorScreen(retryAction: () -> Unit, message: String?, modifier: Modifier = 
     ) {
         Text(
             text = message?: stringResource(R.string.loading_failed),
-            modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))
+            modifier = Modifier
+                .padding(dimensionResource(R.dimen.padding_medium))
+                .align(Alignment.CenterHorizontally)
         )
         Button(onClick = retryAction) {
             Text(text = stringResource(R.string.retry))
@@ -265,6 +277,7 @@ fun HomeBodyPreview() {
     HomeBody(
         itemList = DataProvider.characterList(),
         loadMoreItems = {},
+        refreshData = {},
         listState = LazyListState(),
         isLoading = false,
         onItemClick = {}
