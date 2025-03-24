@@ -41,30 +41,6 @@ class StarWarsScreenNavigationTest {
 
     private lateinit var navController: NavHostController
 
-    private fun shareDetails(context: Context, characterData: CharacterData?) {
-        if (characterData == null) return
-        val shareText =
-            """
-            |Name: ${characterData.name}
-            |Height: ${characterData.height}cm
-            |Gender: ${characterData.gender}
-            |Birth Year: ${characterData.birth_year}
-            |Eye Color: ${characterData.eye_color}
-            |Hair Color: ${characterData.hair_color}
-        """.trimMargin()
-        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/*"
-            putExtra(Intent.EXTRA_TEXT, shareText)
-        }
-
-        context.startActivity(
-            Intent.createChooser(
-                shareIntent,
-                context.getString(R.string.app_name)
-            )
-        )
-    }
-
     @Before
     fun setup() {
         hiltRule.inject()
@@ -90,15 +66,12 @@ class StarWarsScreenNavigationTest {
                     )
                 }
 
-                composable(route = StarWarsScreen.CharacterDetails.name) {
-                    val context = LocalContext.current
-                    val character = navController.previousBackStackEntry?.savedStateHandle?.get<CharacterData>(context.getString(
-                        R.string.character))
-                    if (character != null) {
+                composable(route = "${StarWarsScreen.CharacterDetails.name}/{id}") {
+                    val id = navController.currentBackStackEntry?.arguments?.getString("id")?.toInt()
+                    if (id != null) {
                         CharacterDetailScreen(
-                            character = character,
-                            navigateBack = { navController.navigateUp() },
-                            shareDetails = { shareDetails(context, character) }
+                            id = id,
+                            navigateBack = { navController.navigateUp() }
                         )
                     }
                 }

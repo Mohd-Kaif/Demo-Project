@@ -73,15 +73,21 @@ dependencies {
     implementation(libs.androidx.datastore)
 
     implementation(libs.hilt.android)
+//    testImplementation(libs.junit.junit)
     kapt(libs.hilt.compiler)
 
-    // Jetpack Compose integration
     implementation(libs.androidx.hilt.navigation.compose)
 
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
 
+    implementation(libs.material3)
+
     testImplementation(libs.junit)
+    testImplementation(libs.mockk.android)
+    testImplementation(libs.mockk.agent)
+    testImplementation(libs.kotlinx.coroutines.test)
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
