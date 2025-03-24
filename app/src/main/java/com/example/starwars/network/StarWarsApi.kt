@@ -6,5 +6,5 @@ import retrofit2.http.Url
 
 interface StarWarsApi {
     @GET
-    suspend fun getCharacters(@Url url: String): ResponseData
+    suspend fun getCharacters(@Url url: String): ResponseData?
 }
