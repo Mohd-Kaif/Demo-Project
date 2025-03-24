@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.Navigation
 import androidx.navigation.compose.NavHost
@@ -33,49 +34,22 @@ fun StarWarsNavHost(
         modifier = modifier
     ) {
         composable(route = StarWarsScreen.Home.name) {
-            val context = LocalContext.current
             HomeScreen(
-                navigateToCharacterDetails = { character ->
-                    navController.currentBackStackEntry?.savedStateHandle?.set(context.getString(R.string.character), character)
-                    navController.navigate(StarWarsScreen.CharacterDetails.name)
+                navigateToCharacterDetails = { id ->
+                    navController.navigate(route = "${StarWarsScreen.CharacterDetails.name}/$id")
                 }
             )
         }
 
-        composable(route = StarWarsScreen.CharacterDetails.name) {
-            val context = LocalContext.current
-            val character = navController.previousBackStackEntry?.savedStateHandle?.get<CharacterData>(context.getString(R.string.character))
-            if (character != null) {
+        composable(route = "${StarWarsScreen.CharacterDetails.name}/{id}") {
+            val id = navController.currentBackStackEntry?.arguments?.getString("id")?.toInt()
+            if (id != null && navController.previousBackStackEntry != null) {
                 CharacterDetailScreen(
-                    character = character,
+                    id = id,
                     navigateBack = { navController.navigateUp() },
-                    shareDetails = { shareDetails(context, character) }
+                    viewModel = hiltViewModel(navController.previousBackStackEntry!!)
                 )
             }
         }
     }
-}
-
-private fun shareDetails(context: Context, characterData: CharacterData?) {
-    if (characterData == null) return
-    val shareText =
-        """
-            |Name: ${characterData.name}
-            |Height: ${characterData.height}cm
-            |Gender: ${characterData.gender}
-            |Birth Year: ${characterData.birth_year}
-            |Eye Color: ${characterData.eye_color}
-            |Hair Color: ${characterData.hair_color}
-        """.trimMargin()
-    val shareIntent = Intent(Intent.ACTION_SEND).apply {
-        type = "text/*"
-        putExtra(Intent.EXTRA_TEXT, shareText)
-    }
-
-    context.startActivity(
-        Intent.createChooser(
-            shareIntent,
-            context.getString(R.string.app_name)
-        )
-    )
 }

@@ -1,5 +1,6 @@
 package com.example.starwars.view.screens
 
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,28 +14,38 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.example.starwars.R
 import com.example.starwars.StarWarsTopAppBar
 import com.example.starwars.data.CharacterData
 import com.example.starwars.data.DataProvider
 import com.example.starwars.imageUrl
+import com.example.starwars.viewModel.HomeViewModel
+import com.example.starwars.viewModel.Result
 
 @Composable
 fun CharacterDetailScreen(
-    character: CharacterData,
+    id: Int,
     navigateBack: () -> Unit,
-    shareDetails: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
+    val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
+    val character = (homeUiState as Result.Success).data[id]
+    val context = LocalContext.current
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -43,8 +54,8 @@ fun CharacterDetailScreen(
                 canNavigateBack = true,
                 canShareDetails = true,
                 navigateUp = navigateBack,
-                shareDetails = shareDetails
-                )
+                shareDetails = { viewModel.shareDetails(context = context, characterData = character) }
+            )
         }
     ) { innerPadding ->
         CharacterDetailBody(
