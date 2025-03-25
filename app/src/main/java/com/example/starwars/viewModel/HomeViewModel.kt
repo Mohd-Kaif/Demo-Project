@@ -2,7 +2,6 @@ package com.example.starwars.viewModel
 
 import android.content.Context
 import android.content.Intent
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.starwars.R
@@ -30,23 +29,30 @@ class HomeViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow<Boolean>(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    private val _showToast = MutableStateFlow<String?>(null)
+    val showToast: StateFlow<String?> = _showToast
+
     fun getAllCharacterData(refresh: Boolean) {
         viewModelScope.launch {
             characterRepository.fetchAllCharacterData(refresh)
-                .onStart { _isLoading.value = true }
-                .onCompletion { _isLoading.value = false }
+                .onStart {
+                    _isLoading.value = true
+                    if (refresh) _homeUiState.value = Result.Loading
+                }
+                .onCompletion {
+                    _isLoading.value = false
+                }
                 .collect { result ->
-                    val currentList =
-                        if ((_homeUiState.value !is Result.Success) || refresh) emptyList()
-                        else (_homeUiState.value as Result.Success).data
+                    val currentList = (_homeUiState.value as? Result.Success)?.data ?: emptyList()
                     when (result) {
                         is Result.Success -> {
                             _homeUiState.value = Result.Success(currentList + result.data)
                         }
                         is Result.Error -> {
-                            if (currentList.isEmpty()) {
+                            if (currentList.isEmpty())
                                 _homeUiState.value = Result.Error(result.exception)
-                            }
+                            else
+                                _showToast.value = result.exception?.message ?: "Something went wrong!!"
                         }
                         is Result.Loading -> {}
                     }

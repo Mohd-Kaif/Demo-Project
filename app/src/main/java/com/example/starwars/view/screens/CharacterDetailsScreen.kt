@@ -1,6 +1,5 @@
 package com.example.starwars.view.screens
 
-import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

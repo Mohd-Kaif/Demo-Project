@@ -1,35 +1,23 @@
 package com.example.starwars.test
 
-import android.content.Context
-import android.content.Intent
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.printToLog
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.testing.TestNavHostController
 import com.example.starwars.MainActivity
 import com.example.starwars.R
-import com.example.starwars.StarWarsApp
-import com.example.starwars.data.CharacterData
 import com.example.starwars.view.navigation.StarWarsScreen
 import com.example.starwars.view.screens.CharacterDetailScreen
 import com.example.starwars.view.screens.HomeScreen
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.RuleChain
 
 @HiltAndroidTest
 class StarWarsScreenNavigationTest {

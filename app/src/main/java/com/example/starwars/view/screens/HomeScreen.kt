@@ -1,6 +1,6 @@
 package com.example.starwars.view.screens
 
-import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -70,6 +71,7 @@ fun HomeScreen(
 ) {
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val showToast by viewModel.showToast.collectAsStateWithLifecycle()
 
     // State to track the scroll position
     val listState = rememberLazyListState()
@@ -114,6 +116,7 @@ fun HomeScreen(
                     loadMoreItems = { viewModel.getAllCharacterData(false) },
                     refreshData = {viewModel.getAllCharacterData(true)},
                     listState = listState,
+                    showToast = showToast,
                     isLoading = isLoading,
                     onItemClick = navigateToCharacterDetails,
                     contentPadding = innerPadding
@@ -138,12 +141,14 @@ fun HomeBody(
     loadMoreItems: () -> Unit,
     refreshData: () -> Unit,
     listState: LazyListState,
+    showToast: String?,
     isLoading: Boolean,
     onItemClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     buffer: Int = BUFFER_SIZE,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
+    val context = LocalContext.current
     val shouldLoadMore = remember {
         derivedStateOf {
             val totalItemsCount = listState.layoutInfo.totalItemsCount
@@ -159,6 +164,12 @@ fun HomeBody(
             .collect{
                 loadMoreItems()
             }
+    }
+
+    LaunchedEffect(shouldLoadMore,showToast) {
+        showToast?.let {
+            Toast.makeText(context, showToast, Toast.LENGTH_SHORT).show()
+        }
     }
 
     PullToRefreshBox(
@@ -279,6 +290,7 @@ fun HomeBodyPreview() {
         loadMoreItems = {},
         refreshData = {},
         listState = LazyListState(),
+        showToast = null ,
         isLoading = false,
         onItemClick = {}
     )

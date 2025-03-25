@@ -30,7 +30,7 @@ class CharacterRepositoryTest {
         val mockData = ResponseData(count = 1, next = null, previous = null, results = emptyList())
         coEvery { api.getCharacters(any()) } returns mockData
 
-        val response = mockRepository.fetchAllCharacterData()
+        val response = mockRepository.fetchAllCharacterData(false)
         response.onEach { res->
             assert(res is Result.Success)
             assertEquals(mockData.results, (res as Result.Success).data)
@@ -42,11 +42,11 @@ class CharacterRepositoryTest {
         val mockData = ResponseData(count = 1, next = null, previous = null, results = DataProvider.characterList())
         coEvery { api.getCharacters(any()) } returns mockData
 
-        val response = mockRepository.fetchAllCharacterData()
+        val response = mockRepository.fetchAllCharacterData(false)
         response.onEach { res->
             assertTrue(res is Result.Success)
             assertEquals(10, (res as Result.Success).data.size)
-            assertEquals("Luke Skywalker", (res as Result.Success).data[0].name)
+            assertEquals("Luke Skywalker", res.data[0].name)
         }.launchIn(this)
     }
 
@@ -55,7 +55,7 @@ class CharacterRepositoryTest {
         val mockData: ResponseData? = null
         coEvery { api.getCharacters(any()) } returns mockData
 
-        val response = mockRepository.fetchAllCharacterData()
+        val response = mockRepository.fetchAllCharacterData(false)
         response.onEach { res->
             assert(res is Result.Error)
             assertEquals("response not found", (res as Result.Error).exception?.message)
@@ -67,7 +67,7 @@ class CharacterRepositoryTest {
         val mockData = ResponseData(count = 1, next = null, previous = null, results = null)
         coEvery { api.getCharacters(any()) } returns mockData
 
-        val response = mockRepository.fetchAllCharacterData()
+        val response = mockRepository.fetchAllCharacterData(false)
         response.onEach { res->
             assert(res is Result.Error)
             assertEquals("data not found in response", (res as Result.Error).exception?.message)
@@ -79,7 +79,7 @@ class CharacterRepositoryTest {
         val exception = Exception("Network Error")
         coEvery { api.getCharacters(any()) } throws exception
 
-        val response = mockRepository.fetchAllCharacterData()
+        val response = mockRepository.fetchAllCharacterData(false)
         response.onEach { res->
             assert(res is Result.Error)
             assertEquals(exception.message, (res as Result.Error).exception?.message)

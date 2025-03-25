@@ -35,9 +35,6 @@ class CharacterRepository @Inject constructor(
             if (response.results == null) {
                 throw Exception("data not found in response")
             }
-            response.results.forEach {
-                Log.d(TAG, "$it")
-            }
             emit(response.results)
             nextPageUrl = response.next
         }.asResult()
@@ -50,7 +47,8 @@ class CharacterRepository @Inject constructor(
                         504 -> "No Internet Connection"
                         else -> "HTTP $code error Something went wrong"
                     }
-                    else -> "Oops!! Something went wrong"
+//                    else -> "Oops!! Something went wrong"
+                    else -> e.message
                 }
                 emit(Result.Error(Exception(errMessage)))
             }
